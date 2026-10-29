@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Case Preview</title>
+<style>
+:root {
+  --bg: #f6f5f1; --surface: #ffffff; --ink: #1d1d1b; --muted: #6b6a65; --line: #e2e0d8;
+  --accent: #1f5f8b; --accent-soft: #e6eff6; --lock: #9a5b13; --lock-soft: #fbf0e1;
+  --search: #2e7d4f; --search-soft: #e5f3ea; --focus: #1f5f8b55;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #161615; --surface: #1f1f1d; --ink: #ecebe6; --muted: #a3a29b; --line: #34332f;
+    --accent: #7db4dc; --accent-soft: #1d2a35; --lock: #e3a557; --lock-soft: #33271a;
+    --search: #74c597; --search-soft: #1a2c22; --focus: #7db4dc55;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #161615; --surface: #1f1f1d; --ink: #ecebe6; --muted: #a3a29b; --line: #34332f;
+  --accent: #7db4dc; --accent-soft: #1d2a35; --lock: #e3a557; --lock-soft: #33271a;
+  --search: #74c597; --search-soft: #1a2c22; --focus: #7db4dc55;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: 15px/1.6 "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+}
+.wrap { display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 32px; max-width: 1180px; margin: 0 auto; padding: 32px 24px 80px; }
+nav { position: sticky; top: 24px; align-self: start; }
+nav h1 { font-size: 20px; margin: 0 0 4px; letter-spacing: -0.01em; }
+nav .sub { color: var(--muted); font-size: 13px; margin-bottom: 18px; }
+nav a { display: flex; justify-content: space-between; gap: 8px; padding: 7px 10px; border-radius: 8px; color: var(--ink); text-decoration: none; font-size: 14px; }
+nav a:hover { background: var(--accent-soft); }
+nav a .cnt { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+.progress { height: 6px; background: var(--line); border-radius: 99px; overflow: hidden; margin: 16px 0 6px; }
+.progress > i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .2s; }
+.ptext { font-size: 12px; color: var(--muted); }
+.tools { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px 20px; }
+.tools { justify-content: flex-end; }
+.tools button { padding: 10px 18px; font-size: 15px; }
+.saved { text-align: right; }
+.toolhint { flex-basis: 100%; margin: 4px 0 0; text-align: right; font-size: 13px; color: var(--muted); word-break: keep-all; }
+.saved.ok { color: var(--search); font-weight: 600; }
+button { font: inherit; font-size: 14px; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; }
+button:hover { border-color: var(--accent); }
+button.primary { background: var(--accent); border-color: var(--accent); color: var(--surface); font-weight: 600; }
+.saved { flex-basis: 100%; font-size: 12px; color: var(--muted); min-height: 18px; }
+main { min-width: 0; }
+.guide { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px 20px; margin-bottom: 24px; font-size: 14px; }
+.guide ul { margin: 6px 0 0; padding-left: 18px; }
+section { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 22px 24px; margin-bottom: 20px; scroll-margin-top: 20px; }
+section > h2 { margin: 0 0 4px; font-size: 18px; }
+section > .desc { color: var(--muted); font-size: 13px; margin: 0 0 12px; }
+.q { padding: 16px 0; border-top: 1px solid var(--line); }
+.q:first-of-type { border-top: 0; }
+.q label.t { display: block; font-weight: 600; margin-bottom: 4px; }
+.q .num { color: var(--accent); margin-right: 6px; font-variant-numeric: tabular-nums; }
+.q .hint { color: var(--muted); font-size: 13px; margin: 0 0 8px; }
+.tag { display: inline-block; font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 99px; margin-left: 6px; vertical-align: 2px; }
+.tag.lock { color: var(--lock); background: var(--lock-soft); }
+.tag.search { color: var(--search); background: var(--search-soft); }
+textarea, input[type=text], select {
+  width: 100%; font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px;
+}
+textarea { min-height: 76px; resize: vertical; }
+textarea:focus, input:focus, select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--focus); }
+.checks { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 10px; }
+.checks label { display: flex; align-items: flex-start; gap: 8px; padding: 7px 12px; border: 1px solid var(--line); border-radius: 8px; cursor: pointer; font-size: 14px; background: var(--bg); }
+.checks.col { flex-direction: column; }
+.checks label:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); }
+.checks input { margin-top: 4px; accent-color: var(--accent); }
+.tbl { width: 100%; overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { border-bottom: 1px solid var(--line); padding: 6px; text-align: left; vertical-align: top; }
+th { font-size: 12px; color: var(--muted); font-weight: 600; white-space: nowrap; }
+td.k { width: 34%; font-weight: 500; padding-top: 12px; }
+td select { min-width: 72px; }
+.rnote { margin: 8px 0 0; font-size: 13px; color: var(--search); background: var(--search-soft); border-radius: 8px; padding: 6px 10px; }
+.addrow { margin-top: 8px; font-size: 13px; padding: 5px 10px; }
+@media (max-width: 860px) {
+  .wrap { grid-template-columns: 1fr; padding: 20px 16px 60px; gap: 16px; }
+  nav { position: static; }
+  section { padding: 18px 16px; }
+  td.k { width: 40%; }
+}
+@media print {
+  nav, .guide, .addrow, .tools { display: none; }
+  .wrap { display: block; padding: 0; }
+  body { background: #fff; color: #000; }
+  section { break-inside: avoid-page; border: 0; padding: 0 0 12px; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav>
+    <h1>Case Preview</h1>
+    <div class="sub">프로젝트 사전 준비 질문지</div>
+    <div id="toc"></div>
+    <div class="progress"><i id="bar"></i></div>
+    <div class="ptext" id="ptext"></div>
+  </nav>
+  <main>
+    <div class="guide">
+      <strong>작성 방법</strong>
+      <ul>
+        <li><span class="tag lock">내부정보</span> RFP, 고객 미팅, 인맥을 통해서만 알 수 있는 항목입니다. 꼭 채워 주세요.</li>
+        <li><span class="tag search">리서치 가능</span> 공개 정보로 조사할 수 있는 항목입니다. 비워 두어도 되며, 알고 계신 내용이나 가설을 적어 주시면 리서치 방향을 잡는 데 활용합니다.</li>
+        <li>산업·경쟁 환경(Download Background)은 질문지에 없습니다. 추출한 md 파일을 보내 주시면 Claude 리서치 팀이 조사해 결과 보고서에 담습니다.</li>
+        <li>작성 중에는 자동으로 저장됩니다. 맨 아래 <b>임시저장</b>을 누르면 즉시 저장되며, 창을 닫았다 다시 열어도 이어서 작성할 수 있습니다.</li>
+        <li>작성을 마치면 맨 아래 <b>md 파일 추출하기</b>를 누르세요. 다운로드 폴더에 저장된 md 파일을 Claude에게 첨부해서 보내 주시면, 리서치를 거쳐 시사점을 정리해 드립니다.</li>
+      </ul>
+    </div>
+    <div id="form"></div>
+    <div class="tools">
+      <button id="tempSave">임시저장</button>
+      <button class="primary" id="submit">md 파일 추출하기</button>
+      <p class="toolhint">다운로드 폴더에 저장된 md 파일을 Claude에게 첨부해서 보내 주시면, 리서치를 거쳐 시사점을 정리해 드립니다.</p>
+      <div class="saved" id="saved"></div>
+    </div>
+  </main>
+</div>
+
+<script>
+const LV = ['', '상', '중', '하'];
+const SECTIONS = [
+  { id: 's0', title: '기본 정보', desc: '리서치 대상을 정하는 정보입니다. 고객사, 해당 부서, 해당 임원은 반드시 적어 주세요.', qs: [
+    { id: 'basic', type: 'kv', tag: 'lock', label: '기본 정보', rows: [
+      '고객사명 (정식 명칭 / 소속 그룹)', '해당 부서 (본부·실·팀)', '해당 임원 (이름 / 직책)',
+      'Project Champion (실무 책임자, 위 임원과 다를 경우)', 'Project Champion의 상사 (최종 의사결정권자, 예: CEO)',
+      '프로젝트명 (RFP 기준)', '프로젝트 기간 / 예산 규모', '제안서 제출일 / 제안 발표일', '경쟁 컨설팅사', 'RFP 원문 파일 위치'] },
+  ]},
+  { id: 's1', title: 'Understanding', desc: '고객사가 이 프로젝트를 왜, 무엇을 위해 추진하는지 파악합니다.', qs: [
+    { id: '1-1', tag: 'lock', label: '고객사가 RFP에서 밝힌 프로젝트 추진 배경은 무엇인가?' },
+    { id: '1-2', tag: 'lock', label: '고객사가 RFP에서 명시한 프로젝트 목표는 무엇인가? 무엇을 달성해야 하는가?' },
+    { id: '1-5', type: 'stake', tag: 'lock', label: '이 프로젝트의 핵심 이해관계 부서는 어디이며, 부서 간 정치적 이해관계는 어떠한가?', hint: '필요하면 Power-Interest Matrix로 정리해 보세요.', note: '부서 간 정치적 이해관계 메모' },
+    { id: '1-6', type: 'past', tag: 'lock', label: '고객사가 과거에 받은 컨설팅에서 좋았던 점과 아쉬웠던 점은 무엇인가?', hint: '프로젝트마다 한 행씩 적어 주세요. 고객사가 이전 컨설팅을 어떻게 평가하는지가 이번 제안의 차별화 포인트가 됩니다.' },
+  ]},
+  { id: 's2', title: 'Download Background (산업·경쟁 환경)', hidden: true, qs: [
+    { id: '2-1', tag: 'search', label: '고객사는 어떤 산업에 속해 있는가?' },
+    { id: '2-3', tag: 'search', label: '이 산업의 성장률은 어느 정도이며, 성장을 이끄는 요인은 무엇인가?' },
+    { id: '2-4', type: 'rate', tag: 'search', label: '이 산업의 구조적 특성은 무엇이며, 무엇이 수익성을 제한하는가?', cols: ['강도', '내용'], rows: ['산업 내 경쟁 강도', '신규 진입 장벽', '공급자 교섭력', '구매자 교섭력', '대체재 위협'] },
+    { id: '2-5', tag: 'search', label: '이 산업의 핵심 성공 요인(KSF)은 무엇인가?' },
+    { id: '2-6', tag: 'search', label: '이 산업의 선도 기업과 주요 경쟁사는 어디인가?' },
+    { id: '2-7', tag: 'search', label: '고객사와 경쟁사의 포지셔닝은 어떻게 다른가?' },
+    { id: '2-9', type: 'rank', label: '이 산업의 수익성을 좌우하는 요인(Driver)은 무엇인가?', hint: '중요한 순서대로 순위를 고르세요.', rows: [
+      '차별화나 규제 장벽에 기반한 높은 가격', '경쟁력 있는 가격이나 영업력에 기반한 고객 확보',
+      '재료비·가공비·직접노무비·판촉비 등 변동비 통제', '광고선전비·연구개발 투자·자본 조달의 효율',
+      '인건비·임대료 등 고정비 절감 또는 변동비화'] },
+    { id: '2-10', tag: 'search', label: '이 가운데 고객사는 어떤 Driver에서 경쟁 우위를 갖고 있는가?' },
+  ]},
+  { id: 's3', title: 'Define the Problem', desc: '프로젝트가 풀어야 할 핵심 문제를 정의합니다.', qs: [
+    { id: '3-1', tag: 'both', label: '프로젝트 결론이 잘 실행되었을 때, Project Champion의 상사는 회사가 어떤 모습이 되기를 기대하는가?', hint: 'CEO의 최근 언론 인터뷰를 참고하세요.' },
+    { id: '3-2', label: '고객사의 현재 상황에서 그 모습에 이르지 못하게 막는 가장 큰 장애물은 무엇인가?' },
+    { id: '3-4', label: '다른 문제를 일으키는 근원적 문제, 또는 전략적으로 가장 중요한 문제는 무엇인가?' },
+    { id: '4-1', label: '앞에서 좁혀 정의한 문제의 근본 원인(root cause)은 무엇인가?' },
+  ]},
+  { id: 's5', title: 'Design the Solutions', desc: '근본 원인을 해결할 방안을 설계합니다.', qs: [
+    { id: '5-1', label: '근본 원인을 어떻게 해결할 것인가?' },
+    { id: '5-2', label: '주요 경쟁사는 어디인가?', hint: '알고 계신 경쟁사 이름을 적어 주세요.', rnote: '이 경쟁사들이 같은 문제를 어떻게 풀고 있는지는 Claude 리서치 팀이 조사해 결과 보고서에 담습니다.' },
+    { id: '5-3', tag: 'search', label: '같은 구조(dynamics)를 가진 다른 산업에서 배울 점은 무엇인가?' },
+  ]},
+  { id: 's6', title: 'Deliver the Suggestions', desc: '제언이 실제로 실행되도록 준비합니다.', qs: [
+    { id: '6-1', tag: 'lock', label: '우리 제언을 실행할 때 걸림돌이 될 현실적 제약은 무엇인가?' },
+    { id: '6-2', tag: 'lock', label: '보고에 배석하는 이해관계자 중, 우리 제언이 실행되면 조직 내 입지가 크게 흔들리는 사람이 있는가?' },
+  ]},
+  { id: 's7', title: '추가 메모', desc: '고객 미팅에서 들은 이야기, 임원의 성향, 확인하고 싶은 가설 등을 자유롭게 적어 주세요.', qs: [
+    { id: 'memo', label: '자유 기재' },
+  ]},
+];
+
+const KEY = 'case-preview-v1';
+let state = {};
+try { state = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { state = {}; }
+
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const tagHtml = t => t === 'lock' ? '<span class="tag lock">내부정보</span>'
+  : t === 'search' ? '<span class="tag search">리서치 가능</span>'
+  : t === 'both' ? '<span class="tag lock">내부정보</span><span class="tag search">리서치 가능</span>' : '';
+const sel = (name, val, opts) => `<select data-k="${name}">${opts.map(o => `<option${o === val ? ' selected' : ''}>${o}</option>`).join('')}</select>`;
+const ta = (name, ph) => `<textarea data-k="${name}" placeholder="${ph || ''}">${esc(state[name])}</textarea>`;
+
+function stakeRows(q) {
+  const n = state[q.id + '.rows'] || 4;
+  let h = '';
+  for (let i = 0; i < n; i++) {
+    const p = `${q.id}.${i}`;
+    h += `<tr><td><input type="text" data-k="${p}.who" value="${esc(state[p + '.who'])}" placeholder="부서명"></td>
+      <td><textarea data-k="${p}.pos" placeholder="이 주제에 대한 부서의 입장">${esc(state[p + '.pos'])}</textarea></td>
+      <td>${sel(p + '.pow', state[p + '.pow'], LV)}</td>
+      <td>${sel(p + '.int', state[p + '.int'], LV)}</td>
+      <td><input type="text" data-k="${p}.note" value="${esc(state[p + '.note'])}"></td></tr>`;
+  }
+  return h;
+}
+
+function pastRows(q) {
+  const n = state[q.id + '.rows'] || 2;
+  let h = '';
+  for (let i = 0; i < n; i++) {
+    const p = `${q.id}.${i}`;
+    h += `<tr><td><textarea data-k="${p}.proj" placeholder="주제 / 시기 / 수행사">${esc(state[p + '.proj'])}</textarea></td>
+      <td><textarea data-k="${p}.good" placeholder="좋았던 점">${esc(state[p + '.good'])}</textarea></td>
+      <td><textarea data-k="${p}.bad" placeholder="아쉬웠던 점">${esc(state[p + '.bad'])}</textarea></td></tr>`;
+  }
+  return h;
+}
+const ROWS = { stake: stakeRows, past: pastRows };
+
+function renderQ(q, num) {
+  let body = '';
+  const t = q.type || 'text';
+  if (t === 'text') body = ta(q.id);
+  if (t === 'kv') body = `<div class="tbl"><table>${q.rows.map((r, i) =>
+    `<tr><td class="k">${r}</td><td><input type="text" data-k="${q.id}.${i}" value="${esc(state[q.id + '.' + i])}"></td></tr>`).join('')}</table></div>`;
+  if (t === 'check') body = `<div class="checks${q.col ? ' col' : ''}">${q.opts.map((o, i) =>
+    `<label><input type="checkbox" data-k="${q.id}.c${i}"${state[q.id + '.c' + i] ? ' checked' : ''}><span>${o}</span></label>`).join('')}</div>`
+    + (q.note ? ta(q.id + '.note', q.note) : '');
+  if (t === 'rate') body = `<div class="tbl"><table><tr><th>요인</th><th>강도</th><th>내용</th></tr>${q.rows.map((r, i) =>
+    `<tr><td class="k">${r}</td><td>${sel(q.id + '.' + i + '.lv', state[q.id + '.' + i + '.lv'], LV)}</td>
+     <td><input type="text" data-k="${q.id}.${i}.txt" value="${esc(state[q.id + '.' + i + '.txt'])}"></td></tr>`).join('')}</table></div>`;
+  if (t === 'rank') body = `<div class="tbl"><table><tr><th>순위</th><th>수익성 Driver</th></tr>${q.rows.map((r, i) =>
+    `<tr><td style="width:90px">${sel(q.id + '.' + i, state[q.id + '.' + i], ['', ...q.rows.map((_, j) => String(j + 1))])}</td><td style="padding-top:12px">${r}</td></tr>`).join('')}</table></div>`;
+  if (t === 'stake') body = `<div class="tbl"><table><thead><tr><th style="width:18%">이해관계 부서</th><th style="width:40%">이 주제에 대한 입장</th><th>영향력</th><th>관심도</th><th>비고 (관계·이해관계)</th></tr></thead>
+    <tbody id="rows-${q.id}">${stakeRows(q)}</tbody></table></div>
+    <button class="addrow" data-add="${q.id}">+ 행 추가</button>` + ta(q.id + '.note', q.note);
+  if (t === 'past') body = `<div class="tbl"><table><thead><tr><th style="width:26%">과거 컨설팅 프로젝트</th><th>좋았던 점</th><th>아쉬웠던 점</th></tr></thead>
+    <tbody id="rows-${q.id}">${pastRows(q)}</tbody></table></div>
+    <button class="addrow" data-add="${q.id}">+ 행 추가</button>`;
+  return `<div class="q"><label class="t"><span class="num">${num}</span>${esc(q.label)}${tagHtml(q.tag)}</label>
+    ${q.hint ? `<p class="hint">${esc(q.hint)}</p>` : ''}${body}
+    ${q.rnote ? `<p class="rnote">${esc(q.rnote)}</p>` : ''}</div>`;
+}
+
+// hidden 섹션은 화면에 보이지 않고 결과 보고서에서 Claude가 채운다. 섹션 번호는 화면에 보이는 순서대로 매긴다
+const VISIBLE = SECTIONS.filter(s => !s.hidden);
+const RESEARCH = SECTIONS.filter(s => s.hidden);
+const secNo = s => VISIBLE.indexOf(s);
+const stitle = s => `${secNo(s)}. ${s.title}`;
+// 기본 정보와 추가 메모는 질문 번호 없음
+const qnum = (s, j) => (s.id === 's0' || s.id === 's7') ? '' : `${secNo(s)}-${j + 1}`;
+
+function render() {
+  document.getElementById('form').innerHTML = VISIBLE.map(s =>
+    `<section id="${s.id}"><h2>${stitle(s)}</h2><p class="desc">${s.desc}</p>
+     ${s.qs.map((q, j) => renderQ(q, qnum(s, j))).join('')}</section>`).join('');
+  update();
+}
+
+function filled(q) {
+  return Object.keys(state).some(k => (k === q.id || k.startsWith(q.id + '.')) && !k.endsWith('.rows') && state[k] && String(state[k]).trim());
+}
+
+function update() {
+  let total = 0, done = 0;
+  document.getElementById('toc').innerHTML = VISIBLE.map(s => {
+    const d = s.qs.filter(filled).length;
+    total += s.qs.length; done += d;
+    return `<a href="#${s.id}"><span>${stitle(s)}</span><span class="cnt">${d}/${s.qs.length}</span></a>`;
+  }).join('');
+  document.getElementById('bar').style.width = (done / total * 100) + '%';
+  document.getElementById('ptext').textContent = `${done} / ${total} 항목 작성`;
+}
+
+let timer;
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify(state)); document.getElementById('saved').textContent = '자동 저장됨 · ' + new Date().toLocaleTimeString('ko-KR'); }
+  catch (e) { document.getElementById('saved').textContent = '자동 저장이 되지 않는 환경입니다. 창을 닫기 전에 md 파일 추출하기로 파일을 받아 두세요.'; }
+}
+document.addEventListener('input', e => {
+  const k = e.target.dataset.k; if (!k) return;
+  state[k] = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+  clearTimeout(timer); timer = setTimeout(() => { save(); update(); }, 300);
+});
+document.addEventListener('change', e => {
+  const k = e.target.dataset.k; if (!k) return;
+  state[k] = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+  save(); update();
+});
+document.addEventListener('click', e => {
+  const id = e.target.dataset.add; if (!id) return;
+  const q = SECTIONS.flatMap(s => s.qs).find(x => x.id === id);
+  state[id + '.rows'] = (state[id + '.rows'] || (q.type === 'past' ? 2 : 4)) + 1;
+  document.getElementById('rows-' + id).innerHTML = ROWS[q.type](q);
+  save();
+});
+
+function v(k) { return (state[k] && String(state[k]).trim()) || ''; }
+function toMarkdown() {
+  const L = ['# Case Preview 작성본', '', `작성일: ${new Date().toLocaleDateString('ko-KR')}`, ''];
+  for (const s of VISIBLE) {
+    L.push(`## ${stitle(s)}`, '');
+    for (const [j, q] of s.qs.entries()) {
+      const t = q.type || 'text';
+      const n = qnum(s, j);
+      L.push(`**${n ? n + '. ' : ''}${q.label}**`, '');
+      if (t === 'text') L.push(v(q.id) || '(미작성)', '');
+      if (q.rnote) L.push(`(Claude 리서치: ${q.rnote})`, '');
+      if (t === 'kv') { L.push('| 항목 | 내용 |', '|---|---|'); q.rows.forEach((r, i) => L.push(`| ${r} | ${v(q.id + '.' + i).replace(/\|/g, '/')} |`)); L.push(''); }
+      if (t === 'check') {
+        q.opts.forEach((o, i) => L.push(`- [${state[q.id + '.c' + i] ? 'x' : ' '}] ${o}`));
+        L.push(''); if (q.note) L.push(`${q.note}: ${v(q.id + '.note') || '(미작성)'}`, '');
+      }
+      if (t === 'rate') { L.push('| 요인 | 강도 | 내용 |', '|---|---|---|'); q.rows.forEach((r, i) => L.push(`| ${r} | ${v(q.id + '.' + i + '.lv')} | ${v(q.id + '.' + i + '.txt').replace(/\|/g, '/')} |`)); L.push(''); }
+      if (t === 'rank') {
+        const rows = q.rows.map((r, i) => ({ r, n: parseInt(state[q.id + '.' + i]) || 99 })).sort((a, b) => a.n - b.n);
+        L.push('| 순위 | 수익성 Driver |', '|---|---|'); rows.forEach(x => L.push(`| ${x.n === 99 ? '' : x.n} | ${x.r} |`)); L.push('');
+      }
+      if (t === 'stake') {
+        L.push('| 이해관계 부서 | 이 주제에 대한 입장 | 영향력 | 관심도 | 비고 |', '|---|---|---|---|---|');
+        for (let i = 0; i < (state[q.id + '.rows'] || 4); i++) {
+          const p = `${q.id}.${i}`;
+          if (v(p + '.who') || v(p + '.pos') || v(p + '.note')) L.push(`| ${v(p + '.who')} | ${v(p + '.pos').replace(/\|/g, '/').replace(/\n+/g, '<br>')} | ${v(p + '.pow')} | ${v(p + '.int')} | ${v(p + '.note').replace(/\|/g, '/')} |`);
+        }
+        L.push('', `${q.note}: ${v(q.id + '.note') || '(미작성)'}`, '');
+      }
+      if (t === 'past') {
+        const cell = k => v(k).replace(/\|/g, '/').replace(/\n+/g, '<br>');
+        L.push('| 과거 컨설팅 프로젝트 | 좋았던 점 | 아쉬웠던 점 |', '|---|---|---|');
+        let any = false;
+        for (let i = 0; i < (state[q.id + '.rows'] || 2); i++) {
+          const p = `${q.id}.${i}`;
+          if (v(p + '.proj') || v(p + '.good') || v(p + '.bad')) { any = true; L.push(`| ${cell(p + '.proj')} | ${cell(p + '.good')} | ${cell(p + '.bad')} |`); }
+        }
+        if (!any) L.push('| (미작성) | | |');
+        L.push('');
+      }
+    }
+  }
+  L.push('---', '', '## Claude 리서치 요청 (결과 보고서에 포함)', '');
+  for (const s of RESEARCH) {
+    L.push(`### ${s.title}`, '');
+    s.qs.forEach(q => L.push(`- ${q.label}`));
+    L.push('');
+  }
+  VISIBLE.forEach(s => s.qs.forEach((q, j) => { if (q.rnote) L.push(`### ${qnum(s, j)}. ${q.label}`, '', `- ${q.rnote}`, ''); }));
+  return L.join('\n');
+}
+function download(name, text, type) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([text], { type }));
+  a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+const company = () => (v('basic.0') || v('client') || '고객사').replace(/[\\/:*?"<>|\s]+/g, '_');
+function notice(msg) {
+  const el = document.getElementById('saved');
+  el.textContent = msg; el.classList.add('ok');
+  setTimeout(() => el.classList.remove('ok'), 4000);
+}
+document.getElementById('tempSave').onclick = () => {
+  save();
+  notice('임시저장 완료 · ' + new Date().toLocaleTimeString('ko-KR'));
+};
+// 추출한 md 파일은 다운로드 폴더에 저장되며, 사용자가 이 파일을 Claude에게 첨부하면 리서치와 시사점 정리를 진행한다
+document.getElementById('submit').onclick = () => {
+  save();
+  download(`Case_Preview_제출본_${company()}.md`, toMarkdown(), 'text/markdown;charset=utf-8');
+  notice('md 파일을 다운로드 폴더에 저장했습니다. 이 파일을 Claude에게 첨부해서 보내 주세요.');
+};
+render();
+</script>
+</body>
+</html>
